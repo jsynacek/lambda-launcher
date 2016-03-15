@@ -31,7 +31,7 @@ import Data.List (isInfixOf, isPrefixOf, sortBy)
 import qualified Data.Map as M
 import Graphics.UI.Gtk
 import System.Directory (getDirectoryContents, getHomeDirectory)
-import System.FilePath ((</>), takeExtension)
+import System.FilePath ((</>), takeBaseName, takeExtension)
 import System.Process (spawnProcess)
 
 -------------------------------------------------------------------------------
@@ -103,7 +103,9 @@ runProgram cmd = spawnProcess bin args >> return ()
         args = filter (not . ("%" `isPrefixOf`)) $ tail $ words cmd
 
 searchEqualFunc :: String -> (M.Map String String) -> IO Bool
-searchEqualFunc str row = return $ map toLower str `isInfixOf` map toLower (lookup "Name" row)
+searchEqualFunc str row = return $
+  map toLower str `isInfixOf` map toLower (lookup "Name" row) ||
+  map toLower str `isInfixOf` map toLower (takeBaseName $ lookup "Exec" row)
 
 main :: IO ()
 main = do
